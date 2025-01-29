@@ -5,6 +5,10 @@
 /* 
   #FFFFFF - 0 0% 100% bg
   #000000 - 0 0% 0% primary
+  #0CA38F - 172 86% 34% gradient card
+  #3671F1 - 221 87% 58% gradient card 
+  #A875E6 - 267 69% 68% gradient card
+  #A40944 - 337 90% 34% card
  
 */
 
@@ -49,7 +53,7 @@
     --background: 0 0% 100%;
     --foreground: 210 40% 98%;
 
-    --card: 211 80% 37%;
+    --card: 337 90% 34%;
     --card-foreground: 210 40% 98%;
 
     --popover: 210 11% 15%;
@@ -87,6 +91,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-white;
+    @apply bg-background text-primary;
   }
 }
