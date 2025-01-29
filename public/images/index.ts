@@ -6,6 +6,8 @@ import ComputerIcon from './computerIcon.svg';
 import ArrowBigger from './arrowBigger.svg';
 import ArrowSmaller from './arrowSmaller.svg';
 import WhatsappIcon from './whatsappIcon.svg';
+import ArrowSmallerR from './arrowSmallerR.svg';
+import StarIcon from './starIcon.svg';
 
 const AppImages = {
   Logo,
@@ -16,6 +18,8 @@ const AppImages = {
   ArrowBigger,
   ArrowSmaller,
   WhatsappIcon,
+  ArrowSmallerR,
+  StarIcon,
 };
 
 export default AppImages;
