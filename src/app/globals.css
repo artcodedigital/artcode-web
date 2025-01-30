@@ -9,6 +9,8 @@
   #3671F1 - 221 87% 58% gradient card 
   #A875E6 - 267 69% 68% gradient card
   #A40944 - 337 90% 34% card
+  #36D9C1 - 171 68% 53% gradient icon
+  #252525 - 0 0% 15% bg-foreground
  
 */
 
@@ -51,7 +53,7 @@
 
   .light {
     --background: 0 0% 100%;
-    --foreground: 210 40% 98%;
+    --foreground: 0 0% 15%;
 
     --card: 337 90% 34%;
     --card-foreground: 210 40% 98%;

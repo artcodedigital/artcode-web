@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 const Home = () => {
   return ( 
-    <div className="max-w-[1500px] w-[95%] m-auto text-center">
+    <div className="max-w-[1500px] min-h-[calc(100dvh-96px)] w-[95%] m-auto text-center">
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-[7px] border-b-0 border-gray-100 rounded-t-full p-7 pb-0">
         <div className="border-[7px] border-b-0 border-gray-100 rounded-t-full p-7 pb-0">
           <div className="bg-gray-100 w-[600px] h-[300px] rounded-t-full relative" />
