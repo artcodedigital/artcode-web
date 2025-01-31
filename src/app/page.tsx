@@ -37,7 +37,7 @@ const Home = () => {
         O Futuro do Desenvolvimento
       </h1>
       <div className="flex items-center justify-center gap-2">
-        <h2 className="font-medium">
+        <h2 className="font-medium relative w-fit m-auto">
         Seu sistema com as melhores tecnologias do mercado, <br /> tudo integrado com {''}
         <motion.span className="text-transparent bg-clip-text leading-[1.3]"
         style={{
@@ -55,12 +55,16 @@ const Home = () => {
           repeat:Infinity,
         }}>
           Inteligência Artificial
-          <Image className="w-6 h-6 absolute top-[23.7%] right-[40%]" src={AppImages.StarIcon} alt="StarIcon" />
+          <Image className="w-6 absolute right-8 bottom-0" src={AppImages.StarIcon} alt="StarIcon" />
         </motion.span>{''}
       </h2>
       
       </div>
+      <a
+    href="https://wa.me/5581993418470"
+    target="_blank">
       <button className=" flex items-center border-2 rounded-3xl p-3"> <Image className="w-[19px] mr-2" src={AppImages.WhatsappIcon} alt="WhatsappIcon" /> <span className="font-medium">Entrar em Contato</span></button>
+      </a>
     </div>
     </div>
    );

@@ -7,8 +7,8 @@ const Footer = () => {
   return (
     <>
  {/* --------------------------Estilização do Background / Logo ----------------------    */}
-    <footer id="contatos" className='bg-foreground'>
-    <div className="max-w-[1300px] w-[95%] m-auto flex flex-col lg:flex-row items-center justify-between gap-10 py-10 lg:py-16">
+    <footer id="contato" className='bg-foreground'>
+      <div className="max-w-[1300px] w-[95%] m-auto flex flex-col lg:flex-row items-center justify-between gap-10 py-10 lg:py-16">
           <div className="lg:w-[265px]">
             <Link href="#home">
               <Image
