@@ -9,7 +9,7 @@ const Header = () => {
         <Link
           className="lg:absolute left-0 duration-300 hover:scale-110"
           href="#">
-          <Image className="w-36" src={AppImages.Logo} alt="Logo" />
+          <Image className="w-20" src={AppImages.Logo} alt="Logo" />
         </Link>
         <div className="space-x-3 lg:space-x-6 font-semibold flex items-center">
           <Link href="#soluções">Soluções</Link>
