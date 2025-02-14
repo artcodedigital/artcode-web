@@ -1,4 +1,4 @@
-import Logo from './logo.svg';
+import Logo from './logo.png';
 import PhoneImage from './phoneImage.svg';
 import StarImage from './starImage.svg';
 import PhoneIcon from './phoneIcon.svg';
