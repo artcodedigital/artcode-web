@@ -1,0 +1,77 @@
+name: Deploy
+
+on:
+  # Deploy on every push to the default branch.
+  push:
+    branches: ["main"]
+
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+# Only one deployment at a time; let in-progress production deploys finish.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: artcode-web
+  CONTAINER_NAME: artcode-web
+  DEPLOY_PATH: /opt/artcode-web
+  # Publish to 127.0.0.1 only — the host Nginx (artcode-infra `web` role)
+  # reverse-proxies the public domain to this address/port.
+  HOST_BIND: 127.0.0.1
+  HOST_PORT: "3000"
+  CONTAINER_PORT: "3000"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${{ secrets.VPS_PORT || '22' }}" "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          cat >> ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            Port ${{ secrets.VPS_PORT || '22' }}
+            IdentityFile ~/.ssh/id_deploy
+            StrictHostKeyChecking yes
+          EOF
+
+      - name: Sync project to VPS
+        run: |
+          ssh vps "mkdir -p '$DEPLOY_PATH'"
+          rsync -az --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.next' \
+            --exclude 'out' \
+            ./ "vps:$DEPLOY_PATH/"
+
+      - name: Build container and publish static site
+        run: |
+          ssh vps bash -s <<EOF
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+
+          # Build the image (static export baked in) on the VPS.
+          docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
+
+          # Replace the running container.
+          docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+          docker run -d \
+            --name "$CONTAINER_NAME" \
+            --restart unless-stopped \
+            -p $HOST_BIND:$HOST_PORT:$CONTAINER_PORT \
+            "$IMAGE_NAME:latest"
+
+          # Drop dangling images from previous builds.
+          docker image prune -f >/dev/null
+          EOF

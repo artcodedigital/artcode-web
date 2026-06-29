@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+.next
+out
+npm-debug.log*
+yarn-error.log*
+.idea
+.vscode
+Dockerfile
+.dockerignore
+README.md
