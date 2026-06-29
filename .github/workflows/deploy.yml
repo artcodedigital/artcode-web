@@ -48,13 +48,15 @@ jobs:
 
       - name: Sync project to VPS
         run: |
-          ssh vps "mkdir -p '$DEPLOY_PATH'"
-          rsync -az --delete \
-            --exclude '.git' \
-            --exclude 'node_modules' \
-            --exclude '.next' \
-            --exclude 'out' \
-            ./ "vps:$DEPLOY_PATH/"
+          # Reset the deploy dir, then stream the source as a tar over SSH.
+          # tar is used instead of rsync so no extra package is required on the VPS.
+          ssh vps "rm -rf '$DEPLOY_PATH' && mkdir -p '$DEPLOY_PATH'"
+          tar -czf - \
+            --exclude=./.git \
+            --exclude=./node_modules \
+            --exclude=./.next \
+            --exclude=./out \
+            . | ssh vps "tar -xzf - -C '$DEPLOY_PATH'"
 
       - name: Build container and publish static site
         run: |
