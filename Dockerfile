@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # --- Stage 1: build the Next.js static export (output: 'export' -> ./out) ---
-FROM node:20-alpine AS builder
+# Debian (glibc) base: sharp's prebuilt binaries work out of the box, whereas
+# the Alpine/musl runtime fails to load sharp during `next build`.
+FROM node:20-slim AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
