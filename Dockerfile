@@ -8,6 +8,10 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
+# `npm ci` skips sharp's platform-specific optional binary when the lockfile was
+# generated on another OS (macOS here). Force the linux/x64 build for the same
+# version Next pulls in, so `next build` can load sharp.
+RUN npm install --include=optional --os=linux --cpu=x64 sharp@0.33.5
 
 COPY . .
 RUN npm run build
