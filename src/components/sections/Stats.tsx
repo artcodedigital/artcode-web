@@ -17,8 +17,21 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
       ease: [0.22, 1, 0.36, 1],
       onUpdate: (v) => setN(Math.round(v)),
     });
-    return () => controls.stop();
+    // The count-up runs on requestAnimationFrame, which iOS Safari suspends
+    // mid-scroll and throttles in Low Power Mode. Never leave the number at 0.
+    const safety = setTimeout(() => setN(value), 2500);
+    return () => {
+      controls.stop();
+      clearTimeout(safety);
+    };
   }, [inView, value]);
+
+  // Second net, in case `inView` itself never fires: the tile is visible either
+  // way, so it must not sit there showing a zero.
+  useEffect(() => {
+    const t = setTimeout(() => setN((prev) => (prev === 0 ? value : prev)), 4000);
+    return () => clearTimeout(t);
+  }, [value]);
 
   return (
     <span ref={ref} className="tabular-nums">

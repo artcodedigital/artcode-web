@@ -181,7 +181,13 @@ export function Portfolio() {
         </div>
 
         <motion.div layout className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout">
+          {/*
+            `initial={false}` skips the entrance animation for the cards present
+            on first render, so they ship visible instead of at opacity 0 — that
+            animation fired during page load, far above the fold, where nobody
+            could see it anyway. Filtering still animates normally.
+          */}
+          <AnimatePresence mode="popLayout" initial={false}>
             {list.map((p, i) => (
               <ProjectCard key={p.id} p={p} index={i} />
             ))}

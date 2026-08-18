@@ -34,11 +34,7 @@ const Header = () => {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-x-0 top-0 z-50">
+      <header className="anim-down fixed inset-x-0 top-0 z-50">
         <motion.div
           style={{ scaleX: progress }}
           className="absolute left-0 top-0 h-[2px] w-full origin-left bg-gradient-to-r from-violet via-violet-soft to-mint"
@@ -81,7 +77,7 @@ const Header = () => {
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {open && (

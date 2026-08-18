@@ -1,7 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Bot, CheckCircle2, Rocket, Smartphone, Globe, Database } from 'lucide-react';
 
 const LINES = [
@@ -117,11 +116,9 @@ export function HeroMock() {
                   <span className="text-text">{s.value}</span>
                 </div>
                 <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${s.bar}%` }}
-                    transition={{ duration: 1.4, delay: 1.2 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                    className="h-full rounded-full bg-gradient-to-r from-violet to-mint"
+                  <div
+                    style={{ width: `${s.bar}%`, animationDelay: `${1.2 + i * 0.15}s` }}
+                    className="anim-grow h-full rounded-full bg-gradient-to-r from-violet to-mint"
                   />
                 </div>
               </div>
@@ -140,12 +137,9 @@ export function HeroMock() {
       </div>
 
       {/* Floating cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.7 }}
-        style={{ transform: 'translateZ(60px)' }}
-        className={`${floatCard} animate-float -left-6 -top-7 hidden md:flex lg:-left-12`}>
+      <div
+        style={{ transform: 'translateZ(60px)', '--enter-delay': '1.4s', '--float-delay': '0s' } as CSSProperties}
+        className={`${floatCard} anim-card -left-6 -top-7 hidden md:flex lg:-left-12`}>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-violet/20 text-violet-soft">
           <Globe size={18} />
         </span>
@@ -154,14 +148,11 @@ export function HeroMock() {
           <div className="font-semibold">Publicado</div>
         </div>
         <CheckCircle2 size={16} className="ml-1 text-mint" />
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.6, duration: 0.7 }}
-        style={{ transform: 'translateZ(80px)', animationDelay: '1.5s' }}
-        className={`${floatCard} animate-float -right-6 bottom-20 hidden md:flex lg:-right-12`}>
+      <div
+        style={{ transform: 'translateZ(80px)', '--enter-delay': '1.6s', '--float-delay': '1.5s' } as CSSProperties}
+        className={`${floatCard} anim-card -right-6 bottom-20 hidden md:flex lg:-right-12`}>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-mint/15 text-mint">
           <Smartphone size={18} />
         </span>
@@ -169,14 +160,11 @@ export function HeroMock() {
           <div className="text-xs text-muted">App iOS + Android</div>
           <div className="font-semibold">Nas lojas</div>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.8, duration: 0.7 }}
-        style={{ transform: 'translateZ(50px)', animationDelay: '3s' }}
-        className={`${floatCard} animate-float -bottom-7 left-6 hidden md:flex`}>
+      <div
+        style={{ transform: 'translateZ(50px)', '--enter-delay': '1.8s', '--float-delay': '3s' } as CSSProperties}
+        className={`${floatCard} anim-card -bottom-7 left-6 hidden md:flex`}>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber/15 text-amber">
           <Database size={18} />
         </span>
@@ -185,7 +173,7 @@ export function HeroMock() {
           <div className="font-semibold">+2.1k usuários</div>
         </div>
         <Rocket size={16} className="ml-1 text-violet-soft" />
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -5,23 +5,22 @@ import { cn } from '@/lib/utils';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 
+// All three are variable fonts: omitting `weight` ships one file per family
+// covering every weight, instead of one file per weight (15 -> 3 requests).
 const display = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
   variable: '--font-display',
   display: 'swap',
 });
 
 const sans = Manrope({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
   display: 'swap',
 });
 
 const mono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['400', '500'],
   variable: '--font-mono',
   display: 'swap',
 });
@@ -60,6 +59,28 @@ export default function RootLayout({
       className={cn(display.variable, sans.variable, mono.variable)}
       suppressHydrationWarning>
       <body className="min-h-screen overflow-x-hidden font-sans antialiased">
+        {/*
+          Runs synchronously before the rest of the body is parsed, so the
+          scroll-reveal styles only apply when JS is actually alive. Without it
+          the page would render blank if the script never executed.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add('js')`,
+          }}
+        />
+        {/*
+          The hero/header entrance animations are rendered by Motion, which
+          writes their hidden state as inline styles during the static export.
+          With scripting off nothing would ever clear them, so force them open.
+        */}
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `[style*="opacity:0"]{opacity:1!important;filter:none!important;transform:none!important}`,
+            }}
+          />
+        </noscript>
         <Header />
         <main>{children}</main>
         <Footer />

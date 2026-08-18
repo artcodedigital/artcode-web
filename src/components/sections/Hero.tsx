@@ -10,17 +10,6 @@ import { HeroMock } from './HeroMock';
 
 const HEADLINE = ['Software', 'sob', 'medida', 'que', 'faz', 'seu', 'negócio', 'crescer.'];
 
-const wordVariants = {
-  hidden: { opacity: 0, y: 40, rotateX: -40, filter: 'blur(8px)' },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    filter: 'blur(0px)',
-    transition: { delay: 0.25 + i * 0.07, duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-  }),
-};
-
 export function Hero() {
   // Parallax tilt for the mock, based on cursor over the hero.
   const mx = useMotionValue(0);
@@ -57,67 +46,50 @@ export function Hero() {
       {/* Background layers */}
       <div className="grid-bg absolute inset-0 -z-20" aria-hidden />
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-        <motion.div
-          animate={{ x: [0, 40, -20, 0], y: [0, -30, 20, 0], scale: [1, 1.1, 0.95, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -left-40 top-10 h-[520px] w-[520px] rounded-full bg-violet/30 blur-[140px]"
-        />
-        <motion.div
-          animate={{ x: [0, -50, 30, 0], y: [0, 40, -20, 0], scale: [1, 0.9, 1.15, 1] }}
-          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -right-32 top-40 h-[460px] w-[460px] rounded-full bg-mint/15 blur-[140px]"
-        />
+        <div className="animate-orb-a absolute -left-40 top-10 h-[520px] w-[520px] rounded-full bg-violet/30 blur-[140px]" />
+        <div className="animate-orb-b absolute -right-32 top-40 h-[460px] w-[460px] rounded-full bg-mint/15 blur-[140px]" />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-bg to-transparent" />
       </div>
 
       <div className="container-x grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
         {/* Copy */}
         <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-7 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 py-1.5 pl-1.5 pr-4 text-xs font-medium text-muted backdrop-blur">
+          <div
+            className="anim-enter mb-7 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 py-1.5 pl-1.5 pr-4 text-xs font-medium text-muted backdrop-blur"
+            style={{ animationDelay: '0.1s', animationDuration: '0.6s', '--enter-y': '16px' } as React.CSSProperties}>
             <span className="inline-flex items-center gap-1 rounded-full bg-violet/20 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-widest text-violet-soft">
               <Sparkles size={11} /> Novo
             </span>
             Integração com IA em todos os projetos
-          </motion.div>
+          </div>
 
           <h1
             className="display text-balance text-[2.6rem] leading-[0.98] sm:text-6xl md:text-7xl lg:text-[4.6rem] xl:text-[5.2rem]"
             style={{ perspective: 800 }}>
             {HEADLINE.map((w, i) => (
-              <motion.span
+              <span
                 key={w + i}
-                custom={i}
-                variants={wordVariants}
-                initial="hidden"
-                animate="show"
+                style={{ animationDelay: `${0.25 + i * 0.07}s` }}
                 className={
-                  'mr-[0.22em] inline-block will-change-transform ' +
+                  'anim-word mr-[0.22em] inline-block will-change-transform ' +
                   (w === 'crescer.' ? 'gradient-text' : '')
                 }>
                 {w}
-              </motion.span>
+              </span>
             ))}
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.85 }}
-            className="mt-7 max-w-[54ch] text-pretty text-base leading-relaxed text-muted md:text-lg">
+          <p
+            className="anim-enter mt-7 max-w-[54ch] text-pretty text-base leading-relaxed text-muted md:text-lg"
+            style={{ animationDelay: '0.85s' }}>
             Sites, aplicativos e sistemas desenvolvidos do zero para o seu processo — com
             design cuidadoso, código sólido e Inteligência Artificial integrada. Do
             primeiro rascunho ao deploy, com um time que responde.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1 }}
-            className="mt-9 flex flex-wrap items-center gap-3">
+          <div
+            className="anim-enter mt-9 flex flex-wrap items-center gap-3"
+            style={{ animationDelay: '1s' }}>
             <Magnetic>
               <Link
                 href={CONTACT.whatsappWithMessage(
@@ -133,33 +105,28 @@ export function Hero() {
             <Link href="#portfolio" className="btn-ghost !py-3.5">
               Ver portfólio <ArrowUpRight size={16} />
             </Link>
-          </motion.div>
+          </div>
 
-          <motion.ul
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.25 }}
-            className="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-xs text-muted">
+          <ul
+            className="anim-fade mt-10 flex flex-wrap gap-x-7 gap-y-2 text-xs text-muted"
+            style={{ animationDelay: '1.25s' }}>
             {['Orçamento em 48h', 'Código 100% seu', 'Entregas semanais'].map((t) => (
               <li key={t} className="flex items-center gap-2">
                 <span className="h-1 w-1 rounded-full bg-mint" />
                 {t}
               </li>
             ))}
-          </motion.ul>
+          </ul>
         </div>
 
         {/* Mock */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{ perspective: 1400 }}
-          className="relative z-10">
+        <div
+          className="anim-mock relative z-10"
+          style={{ perspective: 1400, animationDelay: '0.5s' }}>
           <motion.div style={{ rotateX: rx, rotateY: ry, transformStyle: 'preserve-3d' }}>
             <HeroMock />
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

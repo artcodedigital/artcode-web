@@ -194,6 +194,30 @@
     );
   }
 
+  /*
+   * Scroll reveal. The hidden state is gated behind `html.js`, which an inline
+   * script sets before the body is parsed — so if JavaScript never runs, the
+   * page renders fully visible instead of blank. See Reveal.tsx.
+   */
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(6px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+      filter 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
+  }
+  .js [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  /* Rescue path — see revealInstantly() in Reveal.tsx. */
+  .js [data-reveal].reveal-instant {
+    transition: none;
+  }
+
   .hairline {
     height: 1px;
     background: linear-gradient(
@@ -212,6 +236,83 @@
   }
   to {
     background-position: 200% 50%;
+  }
+}
+
+/*
+ * Entrance animations. These are CSS, not JS, on purpose: they must not depend
+ * on requestAnimationFrame, which iOS Safari suspends during momentum scrolling
+ * and throttles in Low Power Mode. `animation-fill-mode: both` holds the start
+ * state through the delay, so the staggering matches the previous JS version.
+ */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--enter-y, 20px));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enter-word {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotateX(-40deg);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes enter-mock {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * The header slides in via `top`, not `transform`, on purpose. A transform on
+ * the header would make it a containing block, and a descendant's
+ * `backdrop-filter` cannot sample past a transformed ancestor — which would
+ * flatten the frosted-glass bar into a plain translucent one. `top` costs a
+ * layout pass, but this runs once, on one element, for 0.7s.
+ */
+@keyframes enter-down {
+  from {
+    opacity: 0;
+    top: -80px;
+  }
+  to {
+    opacity: 1;
+    top: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -253,6 +354,37 @@
   }
 }
 
+/*
+ * Hero background orbs. Same motion as before, but as CSS keyframes so the
+ * compositor drives them instead of a per-frame rAF loop on the main thread —
+ * these run forever, and the blurred layers are expensive to re-rasterize.
+ */
+@keyframes orb-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(40px, -30px, 0) scale(1.1);
+  }
+  66% {
+    transform: translate3d(-20px, 20px, 0) scale(0.95);
+  }
+}
+
+@keyframes orb-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(-50px, 40px, 0) scale(0.9);
+  }
+  66% {
+    transform: translate3d(30px, -20px, 0) scale(1.15);
+  }
+}
+
 @keyframes pulse-ring {
   0% {
     transform: scale(0.8);
@@ -264,6 +396,45 @@
   }
 }
 
+/*
+ * `backwards`, not `both`: the start state still applies through the delay, but
+ * once the animation ends the element drops back to its own styles instead of
+ * keeping the final keyframe applied. A filled transform animation leaves a
+ * transform on the element permanently, and a transformed ancestor stops any
+ * descendant's `backdrop-filter` from sampling the page behind it — which
+ * silently killed the frosted glass on the header.
+ */
+.anim-enter {
+  animation: enter-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-word {
+  animation: enter-word 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-mock {
+  animation: enter-mock 1s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-down {
+  animation: enter-down 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-fade {
+  animation: fade-in 0.8s ease backwards;
+}
+.anim-grow {
+  animation: grow-x 1.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transform-origin: left center;
+}
+/*
+ * Hero floating cards: fade in, then float forever. Both have to live in one
+ * `animation` declaration — two classes each setting the shorthand would just
+ * override one another. `fade-in` owns opacity, `float` owns transform, so
+ * they never fight over a property.
+ */
+.anim-card {
+  animation:
+    fade-in 0.7s ease var(--enter-delay, 0s) both,
+    float 6s ease-in-out var(--float-delay, 0s) infinite;
+}
+
 .animate-marquee {
   animation: marquee var(--marquee-duration, 40s) linear infinite;
 }
@@ -272,6 +443,12 @@
 }
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+.animate-orb-a {
+  animation: orb-a 18s ease-in-out infinite;
+}
+.animate-orb-b {
+  animation: orb-b 22s ease-in-out infinite;
 }
 .animate-blink {
   animation: blink 1s steps(2) infinite;
