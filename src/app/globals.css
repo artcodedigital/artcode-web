@@ -2,97 +2,294 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  #FFFFFF - 0 0% 100% bg
-  #000000 - 0 0% 0% primary
-  #0CA38F - 172 86% 34% gradient card
-  #3671F1 - 221 87% 58% gradient card 
-  #A875E6 - 267 69% 68% gradient card
-  #A40944 - 337 90% 34% card
-  #36D9C1 - 171 68% 53% gradient icon
-  #252525 - 0 0% 15% bg-foreground
- 
-*/
-
 @layer base {
-  .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 15%;
-
-    --card: 218 8% 26%;
-    --card-foreground: 112 73% 15%;
-
-    --popover: 228 9% 11%;
-    --popover-foreground: 210 40% 98%;
-
-    --title: 0 0% 98%;
-
-    --primary: 171 90% 34%;
-    --primary-foreground: 171 100% 15%;
-
-    --secondary: 211 100% 50%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 133 92% 5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 228 6% 16%;
-    --accent-foreground: 210 40% 98%;
-
-    --success: 129 100% 36%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 228 6% 16%;
-    --input: 228 6% 16%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --radius: 0.5rem;
+  :root {
+    --bg: 240 26% 4%;
+    --surface: 240 22% 8%;
+    --surface-2: 240 18% 11%;
+    --line: 240 14% 16%;
+    --text: 240 30% 96%;
+    --muted: 236 12% 62%;
+    --violet: 258 100% 62%;
+    --violet-soft: 258 100% 76%;
+    --mint: 164 86% 63%;
+    --amber: 36 100% 64%;
+    --radius: 1rem;
   }
 
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 15%;
+  * {
+    @apply border-line;
+  }
 
-    --card: 337 90% 34%;
-    --card-foreground: 210 40% 98%;
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-    --popover: 210 11% 15%;
-    --popover-foreground: 210 40% 98%;
+  body {
+    @apply bg-bg text-text;
+    font-feature-settings: 'ss01', 'cv11';
+  }
 
-    --title: 0 0% 0%;
+  ::selection {
+    background: hsl(var(--violet) / 0.55);
+    color: white;
+  }
 
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 39 94% 60%;
-    --secondary-foreground: 121 94% 39%;
-
-    --muted: 0 0% 90%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 228 6% 16%;
-    --accent-foreground: 210 40% 98%;
-
-    --success: 121 94% 39%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 228 6% 16%;
-    --input: 228 6% 16%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --radius: 0.5rem;
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--bg));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--line));
+    border-radius: 999px;
+    border: 2px solid hsl(var(--bg));
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@layer components {
+  .container-x {
+    @apply mx-auto w-[min(1200px,92%)];
   }
-  body {
-    @apply bg-background text-primary;
+
+  .display {
+    @apply font-display font-bold tracking-[-0.03em];
+  }
+
+  .eyebrow {
+    @apply font-mono text-[0.72rem] uppercase tracking-[0.22em] text-mint;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--violet-soft)) 0%,
+      hsl(var(--mint)) 55%,
+      hsl(var(--violet-soft)) 100%
+    );
+    background-size: 200% 100%;
+    animation: gradient-shift 6s linear infinite;
+  }
+
+  .glass {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--surface) / 0.85),
+      hsl(var(--surface) / 0.55)
+    );
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid hsl(var(--line));
+  }
+
+  .card {
+    @apply relative overflow-hidden rounded-2xl border border-line bg-surface;
+    background-image: radial-gradient(
+      120% 100% at 0% 0%,
+      hsl(var(--surface-2)) 0%,
+      hsl(var(--surface)) 60%
+    );
+  }
+
+  .card-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+      400px circle at var(--mx, 50%) var(--my, 50%),
+      hsl(var(--violet) / 0.75),
+      hsl(var(--mint) / 0.25) 35%,
+      transparent 60%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .card-glow:hover::before {
+    opacity: 1;
+  }
+
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-violet px-6 py-3 text-sm font-semibold text-white transition-transform duration-300;
+    box-shadow:
+      0 0 0 1px hsl(var(--violet) / 0.5),
+      0 10px 40px -10px hsl(var(--violet) / 0.8),
+      inset 0 1px 0 hsl(0 0% 100% / 0.2);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 20%,
+      hsl(0 0% 100% / 0.35) 50%,
+      transparent 80%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-primary:hover::after {
+    transform: translateX(120%);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface/40 px-6 py-3 text-sm font-semibold text-text transition-all duration-300 hover:border-violet-soft/50 hover:bg-surface;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--line) / 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--line) / 0.55) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      #000 40%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      #000 40%,
+      transparent 100%
+    );
+  }
+
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+  }
+
+  .hairline {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--line)) 20%,
+      hsl(var(--line)) 80%,
+      transparent
+    );
+  }
+}
+
+@keyframes gradient-shift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-blink {
+  animation: blink 1s steps(2) infinite;
+}
+.animate-orbit {
+  animation: orbit 30s linear infinite;
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

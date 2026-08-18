@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ArtCode — Landing page
 
-## Getting Started
+Site institucional da ArtCode (sites, apps, sistemas sob medida e integração com IA).
 
-First, run the development server:
+**Stack:** Next.js 15 (App Router, `output: 'export'`), React 19, Tailwind CSS 3, [Motion](https://motion.dev) (animações), lucide-react (ícones).
+
+## Rodando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # gera o export estático em ./out
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estrutura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+  app/
+    layout.tsx        # fontes (Bricolage Grotesque, Manrope, JetBrains Mono), metadata, Header/Footer
+    page.tsx          # composição das seções
+    globals.css       # tokens de cor, utilitários (.card, .glass, .btn-primary...), keyframes
+  data/
+    content.ts        # TODO o conteúdo editável: contato, nav, serviços, processo, portfólio, stats, depoimentos, FAQ
+  components/
+    Header/  Footer/
+    sections/         # Hero, HeroMock, TechMarquee, Services, Process, Portfolio, Stats, Testimonials, FAQ, Contact
+    ui/               # Reveal (scroll reveal), SpotlightCard, Magnetic, SectionHeading, Logo
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Editando conteúdo
 
-## Learn More
+Quase tudo que é texto fica em `src/data/content.ts`:
 
-To learn more about Next.js, take a look at the following resources:
+- `CONTACT` — telefone, WhatsApp, e-mail, LinkedIn, cidade.
+- `PROJECTS` — cases do portfólio (nome, categoria, resumo, resultado, stack). Os previews são desenhados em CSS
+  (`mock: 'browser' | 'phone' | 'dashboard'`, `hue` define a cor). Para usar prints reais, troque o mock por uma
+  imagem em `Portfolio.tsx`.
+- `TESTIMONIALS`, `FAQ`, `STATS`, `SERVICES`, `PROCESS`, `TECH_STACK`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+O formulário de contato não tem backend: ele monta a mensagem e abre o WhatsApp com o texto pronto.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push na `main` dispara `.github/workflows/deploy.yml`, que builda a imagem Docker (export estático servido por Nginx) na VPS.
