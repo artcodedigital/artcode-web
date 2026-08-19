@@ -4,460 +4,170 @@
 
 @layer base {
   :root {
-    --bg: 240 26% 4%;
-    --surface: 240 22% 8%;
-    --surface-2: 240 18% 11%;
-    --line: 240 14% 16%;
-    --text: 240 30% 96%;
-    --muted: 236 12% 62%;
-    --violet: 258 100% 62%;
-    --violet-soft: 258 100% 76%;
-    --mint: 164 86% 63%;
-    --amber: 36 100% 64%;
-    --radius: 1rem;
+    /*
+     * Dark editorial palette. Names are kept semantic: `paper` is the ground,
+     * `ink` is what's printed on it — here the ground is deep navy and the
+     * ink is warm off-white. Flat tones only; no glows or gradients.
+     */
+    --paper: 233 48% 6%;
+    --paper-2: 233 34% 10%;
+    --ink: 42 30% 94%;
+    --ink-2: 42 14% 76%;
+    --muted: 233 12% 60%;
+    --line: 42 30% 94%;
+    --violet: 258 100% 68%;
+    --violet-deep: 258 100% 76%;
+    --radius: 0.75rem;
   }
 
   * {
-    @apply border-line;
+    border-color: hsl(var(--line) / 0.14);
   }
 
   html {
-    scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Lenis drives smooth scrolling; native smooth would fight it. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
   body {
-    @apply bg-bg text-text;
-    font-feature-settings: 'ss01', 'cv11';
+    @apply bg-paper text-ink;
+    font-feature-settings: 'ss01', 'cv11', 'kern';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Paper grain over the whole page, always. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.33 0 0 0 0 0.3 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   ::selection {
-    background: hsl(var(--violet) / 0.55);
-    color: white;
+    background: hsl(var(--violet));
+    color: hsl(var(--paper));
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(var(--bg));
+    background: hsl(var(--paper));
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--line));
+    background: hsl(var(--line) / 0.25);
     border-radius: 999px;
-    border: 2px solid hsl(var(--bg));
+    border: 2px solid hsl(var(--paper));
   }
 }
 
 @layer components {
   .container-x {
-    @apply mx-auto w-[min(1200px,92%)];
+    @apply mx-auto w-[min(1360px,92%)];
   }
 
   .display {
-    @apply font-display font-bold tracking-[-0.03em];
+    @apply font-display font-semibold tracking-[-0.035em];
+    font-variation-settings: 'opsz' 96;
   }
 
-  .eyebrow {
-    @apply font-mono text-[0.72rem] uppercase tracking-[0.22em] text-mint;
+  /* The one emphasised phrase in a headline: same face, brand colour. */
+  .accent {
+    color: hsl(var(--violet));
   }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      100deg,
-      hsl(var(--violet-soft)) 0%,
-      hsl(var(--mint)) 55%,
-      hsl(var(--violet-soft)) 100%
-    );
-    background-size: 200% 100%;
-    animation: gradient-shift 6s linear infinite;
+  .label {
+    @apply font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted;
   }
 
-  .glass {
-    background: linear-gradient(
-      180deg,
-      hsl(var(--surface) / 0.85),
-      hsl(var(--surface) / 0.55)
-    );
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid hsl(var(--line));
-  }
-
-  .card {
-    @apply relative overflow-hidden rounded-2xl border border-line bg-surface;
-    background-image: radial-gradient(
-      120% 100% at 0% 0%,
-      hsl(var(--surface-2)) 0%,
-      hsl(var(--surface)) 60%
-    );
-  }
-
-  .card-glow::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: radial-gradient(
-      400px circle at var(--mx, 50%) var(--my, 50%),
-      hsl(var(--violet) / 0.75),
-      hsl(var(--mint) / 0.25) 35%,
-      transparent 60%
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-  }
-  .card-glow:hover::before {
-    opacity: 1;
-  }
-
-  .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-violet px-6 py-3 text-sm font-semibold text-white transition-transform duration-300;
-    box-shadow:
-      0 0 0 1px hsl(var(--violet) / 0.5),
-      0 10px 40px -10px hsl(var(--violet) / 0.8),
-      inset 0 1px 0 hsl(0 0% 100% / 0.2);
-  }
-  .btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      100deg,
-      transparent 20%,
-      hsl(0 0% 100% / 0.35) 50%,
-      transparent 80%
-    );
-    transform: translateX(-120%);
-    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .btn-primary:hover::after {
-    transform: translateX(120%);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-  }
-
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface/40 px-6 py-3 text-sm font-semibold text-text transition-all duration-300 hover:border-violet-soft/50 hover:bg-surface;
-  }
-
-  .grid-bg {
-    background-image:
-      linear-gradient(hsl(var(--line) / 0.55) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--line) / 0.55) 1px, transparent 1px);
-    background-size: 64px 64px;
-    mask-image: radial-gradient(
-      ellipse 70% 60% at 50% 0%,
-      #000 40%,
-      transparent 100%
-    );
-    -webkit-mask-image: radial-gradient(
-      ellipse 70% 60% at 50% 0%,
-      #000 40%,
-      transparent 100%
-    );
-  }
-
-  .noise::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.06;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .marquee-mask {
-    mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 12%,
-      #000 88%,
-      transparent
-    );
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 12%,
-      #000 88%,
-      transparent
-    );
-  }
-
-  /*
-   * Scroll reveal. The hidden state is gated behind `html.js`, which an inline
-   * script sets before the body is parsed — so if JavaScript never runs, the
-   * page renders fully visible instead of blank. See Reveal.tsx.
-   */
-  .js [data-reveal] {
-    opacity: 0;
-    transform: translateY(28px);
-    filter: blur(6px);
-    transition:
-      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
-      filter 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
-  }
-  .js [data-reveal].is-revealed {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-  /* Rescue path — see revealInstantly() in Reveal.tsx. */
-  .js [data-reveal].reveal-instant {
-    transition: none;
-  }
-
-  .hairline {
+  .rule {
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      hsl(var(--line)) 20%,
-      hsl(var(--line)) 80%,
-      transparent
-    );
+    background: hsl(var(--line) / 0.14);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-[background-color,transform,color] duration-300;
+  }
+  .btn:hover {
+    background: hsl(var(--violet));
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/25 px-6 py-3.5 text-sm font-medium text-ink transition-[border-color,background-color,color] duration-300;
+  }
+  .btn-outline:hover {
+    border-color: hsl(var(--ink));
+    background: hsl(var(--ink));
+    color: hsl(var(--paper));
+  }
+
+  /* Underlined link that draws its line on hover. */
+  .link-u {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-u:hover {
+    background-size: 100% 1px;
+  }
+
+  /* Outlined display text for the marquee. */
+  .text-outline {
+    -webkit-text-stroke: 1px hsl(var(--ink) / 0.55);
+    color: transparent;
+  }
+
+  /* Reveal targets start visible; GSAP hides + animates them only once it runs. */
+  [data-reveal] {
+    will-change: transform, opacity;
   }
 }
 
-@keyframes gradient-shift {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 200% 50%;
-  }
+/* SplitText line masks */
+.line-mask {
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
 }
 
-/*
- * Entrance animations. These are CSS, not JS, on purpose: they must not depend
- * on requestAnimationFrame, which iOS Safari suspends during momentum scrolling
- * and throttles in Low Power Mode. `animation-fill-mode: both` holds the start
- * state through the delay, so the staggering matches the previous JS version.
- */
-@keyframes enter-up {
-  from {
-    opacity: 0;
-    transform: translateY(var(--enter-y, 20px));
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes enter-word {
-  from {
-    opacity: 0;
-    transform: translateY(40px) rotateX(-40deg);
-    filter: blur(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-
-@keyframes enter-mock {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/*
- * The header slides in via `top`, not `transform`, on purpose. A transform on
- * the header would make it a containing block, and a descendant's
- * `backdrop-filter` cannot sample past a transformed ancestor — which would
- * flatten the frosted-glass bar into a plain translucent one. `top` costs a
- * layout pass, but this runs once, on one element, for 0.7s.
- */
-@keyframes enter-down {
-  from {
-    opacity: 0;
-    top: -80px;
-  }
-  to {
-    opacity: 1;
-    top: 0;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes grow-x {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-
-@keyframes orbit {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/*
- * Hero background orbs. Same motion as before, but as CSS keyframes so the
- * compositor drives them instead of a per-frame rAF loop on the main thread —
- * these run forever, and the blurred layers are expensive to re-rasterize.
- */
-@keyframes orb-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  33% {
-    transform: translate3d(40px, -30px, 0) scale(1.1);
-  }
-  66% {
-    transform: translate3d(-20px, 20px, 0) scale(0.95);
-  }
-}
-
-@keyframes orb-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  33% {
-    transform: translate3d(-50px, 40px, 0) scale(0.9);
-  }
-  66% {
-    transform: translate3d(30px, -20px, 0) scale(1.15);
-  }
-}
-
-@keyframes pulse-ring {
+@keyframes scroll-hint {
   0% {
-    transform: scale(0.8);
-    opacity: 0.8;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  50.01% {
+    transform-origin: bottom;
   }
   100% {
-    transform: scale(2.2);
-    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: bottom;
   }
 }
-
-/*
- * `backwards`, not `both`: the start state still applies through the delay, but
- * once the animation ends the element drops back to its own styles instead of
- * keeping the final keyframe applied. A filled transform animation leaves a
- * transform on the element permanently, and a transformed ancestor stops any
- * descendant's `backdrop-filter` from sampling the page behind it — which
- * silently killed the frosted glass on the header.
- */
-.anim-enter {
-  animation: enter-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.anim-word {
-  animation: enter-word 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.anim-mock {
-  animation: enter-mock 1s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.anim-down {
-  animation: enter-down 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.anim-fade {
-  animation: fade-in 0.8s ease backwards;
-}
-.anim-grow {
-  animation: grow-x 1.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  transform-origin: left center;
-}
-/*
- * Hero floating cards: fade in, then float forever. Both have to live in one
- * `animation` declaration — two classes each setting the shorthand would just
- * override one another. `fade-in` owns opacity, `float` owns transform, so
- * they never fight over a property.
- */
-.anim-card {
-  animation:
-    fade-in 0.7s ease var(--enter-delay, 0s) both,
-    float 6s ease-in-out var(--float-delay, 0s) infinite;
-}
-
-.animate-marquee {
-  animation: marquee var(--marquee-duration, 40s) linear infinite;
-}
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-.animate-orb-a {
-  animation: orb-a 18s ease-in-out infinite;
-}
-.animate-orb-b {
-  animation: orb-b 22s ease-in-out infinite;
-}
-.animate-blink {
-  animation: blink 1s steps(2) infinite;
-}
-.animate-orbit {
-  animation: orbit 30s linear infinite;
-}
-.animate-pulse-ring {
-  animation: pulse-ring 2.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+.animate-scroll-hint {
+  animation: scroll-hint 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -467,6 +177,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

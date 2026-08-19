@@ -1,126 +1,151 @@
 'use client';
 
-import { Globe, Smartphone, Layers, Sparkles, PenTool, Cloud, Check } from 'lucide-react';
-import { SERVICES, type Service } from '@/data/content';
+import { useEffect, useRef } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
+import { CONTACT, SERVICES } from '@/data/content';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { Stagger, StaggerItem } from '@/components/ui/Reveal';
-import { SpotlightCard } from '@/components/ui/SpotlightCard';
-import { cn } from '@/lib/utils';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-const ICONS = {
-  globe: Globe,
-  smartphone: Smartphone,
-  layers: Layers,
-  sparkles: Sparkles,
-  pen: PenTool,
-  cloud: Cloud,
-} as const;
-
-function ServiceCard({ s, index }: { s: Service; index: number }) {
-  const Icon = ICONS[s.icon];
-  return (
-    <SpotlightCard
-      as="article"
-      className="flex h-full flex-col p-6 md:p-7">
-      {/* decorative index */}
-      <span className="pointer-events-none absolute -right-2 -top-6 select-none font-display text-[7rem] font-bold leading-none text-line/35 transition-colors duration-500 group-hover:text-violet/20">
-        {String(index + 1).padStart(2, '0')}
-      </span>
-
-      <div className="relative mb-5 grid h-12 w-12 place-items-center rounded-xl border border-line bg-bg/60 text-violet-soft transition-all duration-500 group-hover:border-violet-soft/40 group-hover:shadow-glow">
-        <Icon size={22} />
-      </div>
-      <h3 className="display relative text-xl md:text-2xl">{s.title}</h3>
-      <p className="relative mt-3 text-sm leading-relaxed text-muted md:text-[0.95rem]">
-        {s.description}
-      </p>
-      <ul className="relative mt-5 flex flex-wrap gap-2">
-        {s.bullets.map((b) => (
-          <li
-            key={b}
-            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg/40 px-2.5 py-1 text-[0.72rem] text-muted">
-            <Check size={12} className="text-mint" />
-            {b}
-          </li>
-        ))}
-      </ul>
-
-      {s.span === 'tall' && (
-        <div className="relative mt-auto pt-8">
-          <MiniDashboard />
-        </div>
-      )}
-      {s.id === 'ia' && (
-        <div className="relative mt-auto pt-6">
-          <MiniChat />
-        </div>
-      )}
-    </SpotlightCard>
-  );
-}
-
-function MiniDashboard() {
-  const bars = [42, 68, 55, 80, 62, 92, 74];
-  return (
-    <div className="rounded-xl border border-line bg-bg/50 p-4">
-      <div className="mb-3 flex items-center justify-between font-mono text-[0.62rem] uppercase tracking-wider text-muted">
-        <span>Faturamento</span>
-        <span className="text-mint">+24%</span>
-      </div>
-      <div className="flex h-24 items-end gap-1.5">
-        {bars.map((h, i) => (
-          <div
-            key={i}
-            className="flex-1 rounded-t-sm bg-gradient-to-t from-violet/60 to-violet-soft transition-all duration-500 group-hover:from-violet group-hover:to-mint"
-            style={{ height: `${h}%`, transitionDelay: `${i * 40}ms` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MiniChat() {
-  return (
-    <div className="space-y-2 text-xs">
-      <div className="ml-auto w-fit max-w-[80%] rounded-2xl rounded-br-sm bg-violet/25 px-3 py-2 text-text">
-        Qual o status do pedido #4821?
-      </div>
-      <div className="w-fit max-w-[85%] rounded-2xl rounded-bl-sm border border-line bg-bg/60 px-3 py-2 text-muted">
-        <span className="text-mint">●</span> Saiu para entrega há 12 min. Previsão: 14h20.
-        Quer que eu avise quando chegar?
-      </div>
-    </div>
-  );
-}
-
+/**
+ * Desktop: the panel track is pinned and scrolls sideways as the page scrolls
+ * down — one service at a time, with a progress line underneath.
+ * Below 1024px it's an ordinary vertical list; no pinning on touch devices.
+ */
 export function Services() {
+  const root = useRef<HTMLElement>(null);
+  const pin = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
+  const counter = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+      const distance = () => track.current!.scrollWidth - window.innerWidth;
+      const tween = gsap.to(track.current, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: pin.current,
+          start: 'top top',
+          end: () => `+=${distance()}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`;
+            if (counter.current) {
+              const i = Math.min(SERVICES.length, Math.floor(self.progress * SERVICES.length) + 1);
+              counter.current.textContent = String(i).padStart(2, '0');
+            }
+          },
+        },
+      });
+      // Panels lift slightly as they enter the viewport horizontally. The
+      // first two are already on screen before the pin engages, so they use a
+      // plain vertical trigger — a containerAnimation trigger only starts
+      // evaluating once the pinned tween is active.
+      gsap.utils.toArray<HTMLElement>('[data-panel]').forEach((panel, i) => {
+        gsap.from(panel.querySelector('[data-panel-inner]'), {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger:
+            i < 2
+              ? { trigger: pin.current, start: 'top 70%', toggleActions: 'play none none reverse' }
+              : {
+                  trigger: panel,
+                  containerAnimation: tween,
+                  start: 'left 85%',
+                  toggleActions: 'play none none reverse',
+                },
+        });
+      });
+      return () => ScrollTrigger.refresh();
+    });
+    return () => mm.revert();
+  }, []);
+
   return (
-    <section id="servicos" className="relative scroll-mt-24 py-24 md:py-32">
+    <section id="servicos" ref={root} className="relative scroll-mt-20 pt-24 md:pt-32">
       <div className="container-x">
         <SectionHeading
-          eyebrow="O que fazemos"
+          index="02"
+          label="O que fazemos"
           title={
             <>
-              Tudo que o seu produto digital precisa,{' '}
-              <span className="text-muted">em um só lugar.</span>
+              Tudo que o seu produto digital precisa, <span className="accent text-violet">num lugar só.</span>
             </>
           }
-          description="Do site institucional ao sistema complexo com IA. Você fala com um time só, e a gente cuida de design, código, infraestrutura e evolução."
+          description="Do site institucional ao sistema com IA. Você fala com um time só, e a gente cuida de design, código, infraestrutura e evolução."
+          className="mb-8 md:mb-10"
         />
+      </div>
 
-        <Stagger className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div ref={pin} className="relative overflow-hidden lg:flex lg:h-screen lg:flex-col lg:justify-center">
+        <div
+          ref={track}
+          className="flex flex-col lg:flex-row lg:items-stretch lg:pl-[max(4vw,calc((100vw-1360px)/2))] lg:pr-[10vw]">
           {SERVICES.map((s, i) => (
-            <StaggerItem
+            <article
               key={s.id}
-              className={cn(
-                s.span === 'wide' && 'lg:col-span-2',
-                s.span === 'tall' && 'lg:row-span-2',
-              )}>
-              <ServiceCard s={s} index={i} />
-            </StaggerItem>
+              data-panel
+              className="group border-t border-ink/12 py-10 lg:w-[min(46vw,620px)] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-8 lg:py-6 xl:w-[min(40vw,640px)]">
+              <div data-panel-inner className="container-x lg:mx-0 lg:w-auto lg:pr-6">
+                <div className="flex items-baseline justify-between">
+                  <span className="display text-[3.4rem] leading-none tracking-[-0.05em] text-ink/[0.13] transition-colors duration-500 group-hover:text-violet lg:text-[5.5rem]">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="label">{s.bullets.length} frentes</span>
+                </div>
+                <h3 className="display mt-6 text-2xl text-ink md:text-3xl lg:mt-10">{s.title}</h3>
+                <p className="mt-4 max-w-[44ch] text-pretty text-[0.95rem] leading-relaxed text-muted md:text-base">
+                  {s.description}
+                </p>
+                <ul className="mt-6 max-w-[44ch] divide-y divide-ink/10 border-y border-ink/10 text-sm">
+                  {s.bullets.map((b) => (
+                    <li key={b} className="flex items-center justify-between py-2.5">
+                      <span>{b}</span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-violet" />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
           ))}
-        </Stagger>
+
+          {/* Closing panel */}
+          <article
+            data-panel
+            className="border-t border-ink/12 py-10 lg:flex lg:w-[min(38vw,520px)] lg:shrink-0 lg:flex-col lg:justify-center lg:border-l lg:border-t-0 lg:px-8 lg:py-6">
+            <div data-panel-inner className="container-x lg:mx-0 lg:w-auto">
+              <p className="display text-3xl leading-[1.05] text-ink md:text-4xl">
+                Não achou o seu caso aqui? <span className="accent text-violet">Provavelmente</span> a gente já
+                fez parecido.
+              </p>
+              <Link
+                href={CONTACT.whatsappWithMessage('Olá! Tenho uma demanda um pouco diferente e queria conversar.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn mt-8">
+                Contar sobre o projeto <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          </article>
+        </div>
+
+        {/* Progress — desktop only */}
+        <div className="container-x mt-6 hidden items-center gap-5 lg:flex">
+          <span className="label tabular-nums">
+            <span ref={counter}>01</span> / {String(SERVICES.length).padStart(2, '0')}
+          </span>
+          <div className="relative h-px flex-1 bg-ink/10">
+            <div ref={bar} className="absolute inset-0 origin-left scale-x-0 bg-ink" />
+          </div>
+        </div>
       </div>
     </section>
   );

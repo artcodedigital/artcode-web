@@ -1,50 +1,52 @@
+'use client';
+
 import Link from 'next/link';
-import { Linkedin, Mail, MessageCircle, ArrowUp } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ArrowUp } from 'lucide-react';
 import { CONTACT, NAV } from '@/data/content';
 import { Logo } from '@/components/ui/Logo';
+import { gsap } from '@/lib/gsap';
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  const wordRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // The giant wordmark rises out of the bottom edge as the footer scrolls in.
+      gsap.fromTo(
+        wordRef.current,
+        { yPercent: 35 },
+        {
+          yPercent: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: rootRef.current, start: 'top bottom', end: 'bottom bottom', scrub: true },
+        },
+      );
+    }, rootRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <footer className="relative overflow-hidden border-t border-line">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-[radial-gradient(60%_100%_at_50%_100%,hsl(var(--violet)/.18),transparent_70%)]"
-      />
-      <div className="container-x relative grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr] md:py-20">
+    <footer ref={rootRef} className="relative overflow-hidden border-t border-ink/10">
+      <div className="container-x grid gap-12 py-16 md:grid-cols-[1.3fr_1fr_1fr] md:py-20">
         <div>
           <Link href="#top" aria-label="ArtCode — início">
             <Logo size={40} />
           </Link>
-          <p className="mt-5 max-w-[36ch] text-sm leading-relaxed text-muted">
-            Sites, aplicativos e sistemas sob medida, com Inteligência Artificial integrada. Do
-            design ao deploy.
+          <p className="mt-5 max-w-[34ch] text-sm leading-relaxed text-muted">
+            Estúdio de software em Recife. Sites, apps, sistemas e IA — sob medida, do rascunho
+            ao deploy.
           </p>
-          <div className="mt-6 flex gap-2">
-            {[
-              { href: CONTACT.whatsapp, label: 'WhatsApp', Icon: MessageCircle },
-              { href: `mailto:${CONTACT.email}`, label: 'E-mail', Icon: Mail },
-              { href: CONTACT.linkedin, label: 'LinkedIn', Icon: Linkedin },
-            ].map(({ href, label, Icon }) => (
-              <Link
-                key={label}
-                href={href}
-                target={href.startsWith('http') ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="grid h-10 w-10 place-items-center rounded-full border border-line text-muted transition-all hover:-translate-y-0.5 hover:border-violet-soft/50 hover:text-text">
-                <Icon size={17} />
-              </Link>
-            ))}
-          </div>
         </div>
 
         <div>
-          <h4 className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Navegação</h4>
-          <ul className="mt-5 space-y-3 text-sm">
+          <h4 className="label">Navegação</h4>
+          <ul className="mt-5 space-y-2.5 text-sm">
             {[...NAV, { label: 'Contato', href: '#contato' }].map((n) => (
               <li key={n.href}>
-                <Link href={n.href} className="text-text/80 transition-colors hover:text-mint">
+                <Link href={n.href} className="link-u text-ink/80 hover:text-ink">
                   {n.label}
                 </Link>
               </li>
@@ -53,16 +55,21 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Contato</h4>
-          <ul className="mt-5 space-y-3 text-sm">
+          <h4 className="label">Contato</h4>
+          <ul className="mt-5 space-y-2.5 text-sm">
             <li>
-              <Link href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="text-text/80 transition-colors hover:text-mint">
+              <Link href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="link-u text-ink/80 hover:text-ink">
                 {CONTACT.phoneDisplay}
               </Link>
             </li>
             <li>
-              <Link href={`mailto:${CONTACT.email}`} className="text-text/80 transition-colors hover:text-mint">
+              <Link href={`mailto:${CONTACT.email}`} className="link-u text-ink/80 hover:text-ink">
                 {CONTACT.email}
+              </Link>
+            </li>
+            <li>
+              <Link href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" className="link-u text-ink/80 hover:text-ink">
+                LinkedIn
               </Link>
             </li>
             <li className="text-muted">{CONTACT.city}</li>
@@ -70,18 +77,22 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="relative border-t border-line">
-        <div className="container-x flex flex-col items-center justify-between gap-3 py-6 text-xs text-muted sm:flex-row">
-          <p>© {year} ArtCode Digital. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-6">
-            <p className="hidden sm:block">Feito com café e código em Recife.</p>
-            <Link
-              href="#top"
-              aria-label="Voltar ao topo"
-              className="grid h-9 w-9 place-items-center rounded-full border border-line transition-all hover:-translate-y-0.5 hover:border-violet-soft/50 hover:text-text">
-              <ArrowUp size={15} />
-            </Link>
-          </div>
+      <div className="container-x flex items-center justify-between border-t border-ink/10 py-5 text-xs text-muted">
+        <p>© {year} ArtCode Digital. Todos os direitos reservados.</p>
+        <Link
+          href="#top"
+          aria-label="Voltar ao topo"
+          className="grid h-9 w-9 place-items-center rounded-full border border-ink/15 transition-colors hover:border-ink hover:bg-ink hover:text-paper">
+          <ArrowUp size={15} />
+        </Link>
+      </div>
+
+      {/* Oversized wordmark, cropped by the viewport bottom. */}
+      <div className="pointer-events-none select-none overflow-hidden" aria-hidden>
+        <div
+          ref={wordRef}
+          className="display container-x -mb-[0.22em] text-[19vw] leading-[0.85] tracking-[-0.05em] text-ink/[0.06]">
+          ArtCode<span className="text-violet/40">.</span>
         </div>
       </div>
     </footer>

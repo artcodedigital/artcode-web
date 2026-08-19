@@ -11,7 +11,7 @@ export const CONTACT = {
 export const NAV = [
   { label: 'Serviços', href: '#servicos' },
   { label: 'Processo', href: '#processo' },
-  { label: 'Portfólio', href: '#portfolio' },
+  { label: 'Trabalhos', href: '#trabalhos' },
   { label: 'Depoimentos', href: '#depoimentos' },
   { label: 'FAQ', href: '#faq' },
 ];

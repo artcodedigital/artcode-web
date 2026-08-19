@@ -1,69 +1,50 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { animate, useInView } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import { STATS } from '@/data/content';
-import { Reveal } from '@/components/ui/Reveal';
-
-function Counter({ value, suffix }: { value: number; suffix: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-20% 0px' });
-  const [n, setN] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(0, value, {
-      duration: 1.8,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: (v) => setN(Math.round(v)),
-    });
-    // The count-up runs on requestAnimationFrame, which iOS Safari suspends
-    // mid-scroll and throttles in Low Power Mode. Never leave the number at 0.
-    const safety = setTimeout(() => setN(value), 2500);
-    return () => {
-      controls.stop();
-      clearTimeout(safety);
-    };
-  }, [inView, value]);
-
-  // Second net, in case `inView` itself never fires: the tile is visible either
-  // way, so it must not sit there showing a zero.
-  useEffect(() => {
-    const t = setTimeout(() => setN((prev) => (prev === 0 ? value : prev)), 4000);
-    return () => clearTimeout(t);
-  }, [value]);
-
-  return (
-    <span ref={ref} className="tabular-nums">
-      {n}
-      <span className="text-violet-soft">{suffix}</span>
-    </span>
-  );
-}
+import { gsap } from '@/lib/gsap';
+import { Marquee } from './Marquee';
 
 export function Stats() {
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-count]').forEach((el) => {
+        const target = Number(el.dataset.count);
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: target,
+          duration: 1.8,
+          ease: 'expo.out',
+          snap: { v: 1 },
+          onUpdate: () => (el.textContent = String(Math.round(obj.v))),
+          scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+        });
+        // Net: never leave a zero on screen if the tween can't run.
+        setTimeout(() => {
+          if (el.textContent === '0' && el.getBoundingClientRect().top < window.innerHeight)
+            el.textContent = String(target);
+        }, 4000);
+      });
+    }, root);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative py-10">
-      <div className="container-x">
-        <Reveal>
-          <div className="glass grid grid-cols-2 divide-line rounded-3xl md:grid-cols-4 md:divide-x">
-            {STATS.map((s, i) => (
-              <div
-                key={s.label}
-                className={
-                  'flex flex-col items-center gap-1 px-6 py-8 text-center md:py-10 ' +
-                  (i < 2 ? 'border-b border-line md:border-b-0' : '') +
-                  (i % 2 === 0 ? ' border-r border-line md:border-r-0' : '')
-                }>
-                <span className="display text-4xl md:text-5xl">
-                  <Counter value={s.value} suffix={s.suffix} />
-                </span>
-                <span className="text-xs text-muted md:text-sm">{s.label}</span>
-              </div>
-            ))}
+    <section ref={root} className="relative overflow-hidden border-y border-ink/10 bg-paper-2">
+      <div className="container-x grid grid-cols-2 gap-y-12 pb-8 pt-20 md:grid-cols-4 md:pt-28">
+        {STATS.map((s) => (
+          <div key={s.label} data-reveal className="border-l border-ink/15 pl-5 md:pl-7">
+            <div className="display text-[3.2rem] leading-none tracking-[-0.05em] md:text-[4.8rem]">
+              <span data-count={s.value}>0</span>
+              <span className="text-violet">{s.suffix}</span>
+            </div>
+            <p className="label mt-3">{s.label}</p>
           </div>
-        </Reveal>
+        ))}
       </div>
+      <Marquee />
     </section>
   );
 }
