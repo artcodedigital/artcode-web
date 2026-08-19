@@ -1,131 +1,138 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { ArrowRight, ArrowUpRight, Sparkles } from 'lucide-react';
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useRef } from 'react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import { CONTACT } from '@/data/content';
-import { Magnetic } from '@/components/ui/Magnetic';
-import { HeroMock } from './HeroMock';
-
-const HEADLINE = ['Software', 'sob', 'medida', 'que', 'faz', 'seu', 'negócio', 'crescer.'];
+import { INFINITY_PATH } from '@/components/ui/Logo';
+import { gsap, SplitText } from '@/lib/gsap';
 
 export function Hero() {
-  // Parallax tilt for the mock, based on cursor over the hero.
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 80, damping: 20 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-8, 8]), { stiffness: 80, damping: 20 });
-  const [isDesktop, setIsDesktop] = useState(false);
+  const root = useRef<HTMLElement>(null);
+  const h1 = useRef<HTMLHeadingElement>(null);
+  const mark = useRef<SVGSVGElement>(null);
+  const path = useRef<SVGPathElement>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px) and (hover: hover)');
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ctx = gsap.context(() => {
+      const meta = gsap.utils.toArray<HTMLElement>('[data-hero-meta]');
+      const p = path.current!;
+      const len = p.getTotalLength();
 
-  const onMove = (e: MouseEvent<HTMLElement>) => {
-    if (!isDesktop) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  const onLeave = () => {
-    mx.set(0);
-    my.set(0);
-  };
+      if (reduce) return;
+
+      // --- Load: the ∞ draws itself while the headline rises line by line ---
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+      gsap.set(meta, { y: 18, opacity: 0 });
+
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+      tl.to(p, { strokeDashoffset: 0, duration: 2, ease: 'power2.inOut' }, 0);
+
+      document.fonts.ready.then(() => {
+        SplitText.create(h1.current!, {
+          type: 'lines',
+          mask: 'lines',
+          linesClass: 'line',
+          autoSplit: true,
+          onSplit: (self) =>
+            gsap.from(self.lines, {
+              yPercent: 110,
+              duration: 1.3,
+              stagger: 0.09,
+              ease: 'expo.out',
+              delay: 0.15,
+            }),
+        });
+        tl.to(meta, { y: 0, opacity: 1, duration: 1, stagger: 0.08 }, 0.7);
+      });
+
+      // --- Scroll: headline drifts up + fades, the mark rotates & sinks -----
+      gsap.to(h1.current, {
+        yPercent: -18,
+        opacity: 0.15,
+        ease: 'none',
+        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
+      });
+      gsap.to(mark.current, {
+        rotate: 60,
+        yPercent: 30,
+        ease: 'none',
+        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
+      });
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
       id="top"
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      className="noise relative isolate overflow-hidden pb-20 pt-24 md:pb-28 md:pt-28">
-      {/* Background layers */}
-      <div className="grid-bg absolute inset-0 -z-20" aria-hidden />
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-        <div className="animate-orb-a absolute -left-40 top-10 h-[520px] w-[520px] rounded-full bg-violet/30 blur-[140px]" />
-        <div className="animate-orb-b absolute -right-32 top-40 h-[460px] w-[460px] rounded-full bg-mint/15 blur-[140px]" />
-        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-bg to-transparent" />
-      </div>
+      ref={root}
+      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28 md:pt-36">
+      {/* Oversized outline mark bleeding off the right edge */}
+      <svg
+        ref={mark}
+        viewBox="0 0 100 56"
+        fill="none"
+        aria-hidden
+        className="pointer-events-none absolute -right-[18vw] top-[8vh] w-[78vw] max-w-[1100px] md:-right-[10vw] md:top-[4vh] md:w-[62vw]"
+        style={{ transformOrigin: '50% 50%' }}>
+        <path
+          ref={path}
+          d={INFINITY_PATH}
+          stroke="hsl(var(--violet))"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          strokeWidth="1.5"
+        />
+      </svg>
 
-      <div className="container-x grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
-        {/* Copy */}
-        <div className="relative z-10">
-          <div
-            className="anim-enter mb-7 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 py-1.5 pl-1.5 pr-4 text-xs font-medium text-muted backdrop-blur"
-            style={{ animationDelay: '0.1s', animationDuration: '0.6s', '--enter-y': '16px' } as React.CSSProperties}>
-            <span className="inline-flex items-center gap-1 rounded-full bg-violet/20 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-widest text-violet-soft">
-              <Sparkles size={11} /> Novo
-            </span>
-            Integração com IA em todos os projetos
-          </div>
-
-          <h1
-            className="display text-balance text-[2.6rem] leading-[0.98] sm:text-6xl md:text-7xl lg:text-[4.6rem] xl:text-[5.2rem]"
-            style={{ perspective: 800 }}>
-            {HEADLINE.map((w, i) => (
-              <span
-                key={w + i}
-                style={{ animationDelay: `${0.25 + i * 0.07}s` }}
-                className={
-                  'anim-word mr-[0.22em] inline-block will-change-transform ' +
-                  (w === 'crescer.' ? 'gradient-text' : '')
-                }>
-                {w}
-              </span>
-            ))}
-          </h1>
-
-          <p
-            className="anim-enter mt-7 max-w-[54ch] text-pretty text-base leading-relaxed text-muted md:text-lg"
-            style={{ animationDelay: '0.85s' }}>
-            Sites, aplicativos e sistemas desenvolvidos do zero para o seu processo — com
-            design cuidadoso, código sólido e Inteligência Artificial integrada. Do
-            primeiro rascunho ao deploy, com um time que responde.
-          </p>
-
-          <div
-            className="anim-enter mt-9 flex flex-wrap items-center gap-3"
-            style={{ animationDelay: '1s' }}>
-            <Magnetic>
-              <Link
-                href={CONTACT.whatsappWithMessage(
-                  'Olá! Quero conversar sobre um projeto com a ArtCode.',
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary !px-7 !py-3.5 text-[0.95rem]">
-                Começar meu projeto
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </Magnetic>
-            <Link href="#portfolio" className="btn-ghost !py-3.5">
-              Ver portfólio <ArrowUpRight size={16} />
-            </Link>
-          </div>
-
-          <ul
-            className="anim-fade mt-10 flex flex-wrap gap-x-7 gap-y-2 text-xs text-muted"
-            style={{ animationDelay: '1.25s' }}>
-            {['Orçamento em 48h', 'Código 100% seu', 'Entregas semanais'].map((t) => (
-              <li key={t} className="flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-mint" />
-                {t}
-              </li>
-            ))}
-          </ul>
+      <div className="container-x relative flex flex-1 flex-col">
+        <div className="label flex flex-wrap items-center gap-x-6 gap-y-2" data-hero-meta>
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-violet" />
+            Estúdio de software
+          </span>
+          <span>Recife · Brasil</span>
+          <span className="hidden sm:inline">Sites · Apps · Sistemas · IA</span>
         </div>
 
-        {/* Mock */}
-        <div
-          className="anim-mock relative z-10"
-          style={{ perspective: 1400, animationDelay: '0.5s' }}>
-          <motion.div style={{ rotateX: rx, rotateY: ry, transformStyle: 'preserve-3d' }}>
-            <HeroMock />
-          </motion.div>
+        <h1
+          ref={h1}
+          className="display mt-10 max-w-[13ch] text-[13vw] leading-[0.92] text-ink sm:text-[11vw] md:mt-14 lg:max-w-none lg:text-[6.4rem] xl:text-[7.4rem]">
+          Software sob medida para negócios que não cabem <span className="accent text-violet">na prateleira.</span>
+        </h1>
+
+        <div className="mt-auto grid gap-8 pb-10 pt-16 md:grid-cols-[1fr_auto] md:items-end md:pb-14">
+          <p
+            data-hero-meta
+            className="max-w-[46ch] text-pretty text-base leading-relaxed text-ink-2 md:text-lg">
+            Sites, aplicativos, sistemas e integrações com IA — desenhados e desenvolvidos
+            do primeiro rascunho ao deploy, por um time que fala a sua língua.
+          </p>
+
+          <div data-hero-meta className="flex flex-wrap items-center gap-3">
+            <Link
+              href={CONTACT.whatsappWithMessage('Olá! Quero conversar sobre um projeto com a ArtCode.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn">
+              Começar um projeto <ArrowUpRight size={16} />
+            </Link>
+            <Link href="#trabalhos" className="btn-outline">
+              Ver trabalhos
+            </Link>
+          </div>
+        </div>
+
+        <div data-hero-meta className="label flex items-center gap-3 pb-8">
+          <span className="relative block h-10 w-px overflow-hidden bg-ink/15">
+            <span className="animate-scroll-hint absolute inset-0 bg-ink" />
+          </span>
+          <span className="flex items-center gap-1.5">
+            Role para explorar <ArrowDown size={12} />
+          </span>
         </div>
       </div>
     </section>

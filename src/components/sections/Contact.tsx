@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { ArrowRight, Mail, MessageCircle, Phone } from 'lucide-react';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { CONTACT } from '@/data/content';
-import { Reveal } from '@/components/ui/Reveal';
-import { Magnetic } from '@/components/ui/Magnetic';
+import { INFINITY_PATH } from '@/components/ui/Logo';
+import { cn } from '@/lib/utils';
 
 const TYPES = ['Site / Landing page', 'Aplicativo', 'Sistema sob medida', 'Integração com IA', 'Outro'];
 
@@ -28,149 +28,113 @@ export function Contact() {
     window.open(CONTACT.whatsappWithMessage(text), '_blank', 'noopener,noreferrer');
   };
 
+  const field =
+    'w-full border-b border-ink/25 bg-transparent py-3 text-base text-ink placeholder:text-ink/35 focus:border-ink focus:outline-none transition-colors';
+
   return (
-    <section id="contato" className="relative scroll-mt-24 py-24 md:py-32">
-      <div className="container-x">
-        <Reveal>
-          <div className="noise relative overflow-hidden rounded-[2rem] border border-line bg-surface">
-            {/* Background */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  'radial-gradient(70% 90% at 0% 0%, hsl(var(--violet) / .35), transparent 60%), radial-gradient(60% 80% at 100% 100%, hsl(var(--mint) / .18), transparent 60%)',
-              }}
-            />
-            <div className="grid-bg absolute inset-0 opacity-50" aria-hidden />
+    <section id="contato" className="relative scroll-mt-20 overflow-hidden border-t border-ink/10 bg-paper-2">
+      <svg
+        viewBox="0 0 100 56"
+        fill="none"
+        aria-hidden
+        className="pointer-events-none absolute -bottom-[10vw] -left-[12vw] w-[60vw] opacity-[0.25]">
+        <path d={INFINITY_PATH} stroke="hsl(var(--violet))" strokeWidth="1.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
 
-            <div className="relative grid gap-12 p-8 md:p-12 lg:grid-cols-[1fr_1fr] lg:gap-16 lg:p-16">
-              {/* Copy */}
-              <div className="flex flex-col">
-                <span className="eyebrow">Vamos conversar</span>
-                <h2 className="display mt-4 text-balance text-4xl leading-[1.02] md:text-5xl lg:text-6xl">
-                  Tem uma ideia? <br />
-                  <span className="gradient-text">A gente tira do papel.</span>
-                </h2>
-                <p className="mt-6 max-w-[48ch] text-pretty text-muted md:text-lg">
-                  Conte em poucas linhas o que você precisa. Em até 48h você recebe um retorno
-                  com próximos passos e uma estimativa inicial — sem compromisso.
-                </p>
-
-                <ul className="mt-10 space-y-4 text-sm">
-                  <li>
-                    <Link
-                      href={CONTACT.whatsapp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-3 text-text">
-                      <span className="grid h-10 w-10 place-items-center rounded-full border border-line bg-bg/50 text-mint transition-colors group-hover:border-mint/50">
-                        <MessageCircle size={18} />
-                      </span>
-                      <span>
-                        <span className="block text-xs text-muted">WhatsApp</span>
-                        <span className="font-semibold">{CONTACT.phoneDisplay}</span>
-                      </span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href={`mailto:${CONTACT.email}`} className="group inline-flex items-center gap-3 text-text">
-                      <span className="grid h-10 w-10 place-items-center rounded-full border border-line bg-bg/50 text-violet-soft transition-colors group-hover:border-violet-soft/50">
-                        <Mail size={18} />
-                      </span>
-                      <span>
-                        <span className="block text-xs text-muted">E-mail</span>
-                        <span className="font-semibold">{CONTACT.email}</span>
-                      </span>
-                    </Link>
-                  </li>
-                  <li className="inline-flex items-center gap-3 text-text">
-                    <span className="grid h-10 w-10 place-items-center rounded-full border border-line bg-bg/50 text-amber">
-                      <Phone size={18} />
-                    </span>
-                    <span>
-                      <span className="block text-xs text-muted">Onde estamos</span>
-                      <span className="font-semibold">{CONTACT.city}</span>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Form */}
-              <form onSubmit={onSubmit} className="glass flex flex-col gap-4 rounded-2xl p-6 md:p-8">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Seu nome" name="name" placeholder="Maria Silva" required />
-                  <Field label="Empresa (opcional)" name="company" placeholder="Nome da empresa" />
-                </div>
-
-                <fieldset>
-                  <legend className="mb-2 text-xs font-medium text-muted">O que você precisa?</legend>
-                  <div className="flex flex-wrap gap-2">
-                    {TYPES.map((t) => (
-                      <button
-                        type="button"
-                        key={t}
-                        onClick={() => setType(t)}
-                        aria-pressed={type === t}
-                        className={
-                          'rounded-full border px-3 py-1.5 text-xs font-medium transition-all ' +
-                          (type === t
-                            ? 'border-mint bg-mint/15 text-mint'
-                            : 'border-line bg-bg/40 text-muted hover:border-violet-soft/40 hover:text-text')
-                        }>
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-medium text-muted">Conte um pouco sobre o projeto</span>
-                  <textarea
-                    name="message"
-                    rows={4}
-                    placeholder="Ex.: Preciso de um sistema para controlar pedidos e estoque, com app para os vendedores..."
-                    className="resize-none rounded-xl border border-line bg-bg/50 px-4 py-3 text-sm text-text placeholder:text-muted/60 focus:border-violet-soft/60 focus:outline-none focus:ring-2 focus:ring-violet/30"
-                  />
-                </label>
-
-                <Magnetic strength={0.15} className="mt-2">
-                  <button type="submit" className="btn-primary w-full !py-3.5">
-                    Enviar pelo WhatsApp <ArrowRight size={18} />
-                  </button>
-                </Magnetic>
-                <p className="text-center text-[0.7rem] text-muted">
-                  Abre uma conversa no WhatsApp com sua mensagem pronta. Nenhum dado é armazenado aqui.
-                </p>
-              </form>
-            </div>
+      <div className="container-x relative grid gap-14 py-24 lg:grid-cols-12 lg:gap-16 lg:py-36">
+        <div className="lg:col-span-6">
+          <div data-reveal className="label flex items-center gap-4 border-t border-ink/15 pt-4">
+            <span>07</span>
+            <span className="h-px w-8 bg-ink/25" />
+            <span>Vamos conversar</span>
           </div>
-        </Reveal>
+          <h2 data-reveal className="display mt-8 text-balance text-[2.8rem] leading-[0.98] sm:text-6xl lg:text-7xl">
+            Tem uma ideia? A gente tira <span className="accent text-violet">do papel.</span>
+          </h2>
+          <p data-reveal className="mt-7 max-w-[46ch] text-pretty text-muted md:text-lg">
+            Conte em poucas linhas o que você precisa. Em até 48h você recebe um retorno com
+            próximos passos e uma estimativa inicial — sem compromisso.
+          </p>
+
+          <ul data-reveal className="mt-12 grid gap-5 text-sm sm:grid-cols-2">
+            <li>
+              <span className="label ">WhatsApp</span>
+              <Link href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="link-u mt-1 block text-lg text-ink">
+                {CONTACT.phoneDisplay}
+              </Link>
+            </li>
+            <li>
+              <span className="label ">E-mail</span>
+              <Link href={`mailto:${CONTACT.email}`} className="link-u mt-1 block text-lg text-ink">
+                {CONTACT.email}
+              </Link>
+            </li>
+            <li>
+              <span className="label ">LinkedIn</span>
+              <Link href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" className="link-u mt-1 block text-lg text-ink">
+                /artcodesolutions
+              </Link>
+            </li>
+            <li>
+              <span className="label ">Onde estamos</span>
+              <span className="mt-1 block text-lg text-ink/80">{CONTACT.city}</span>
+            </li>
+          </ul>
+        </div>
+
+        <form data-reveal onSubmit={onSubmit} className="flex flex-col gap-7 lg:col-span-5 lg:col-start-8">
+          <div className="grid gap-7 sm:grid-cols-2">
+            <label className="block">
+              <span className="label ">Seu nome</span>
+              <input name="name" required placeholder="Maria Silva" className={field} />
+            </label>
+            <label className="block">
+              <span className="label ">Empresa (opcional)</span>
+              <input name="company" placeholder="Nome da empresa" className={field} />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend className="label mb-3 ">O que você precisa?</legend>
+            <div className="flex flex-wrap gap-2">
+              {TYPES.map((t) => (
+                <button
+                  type="button"
+                  key={t}
+                  onClick={() => setType(t)}
+                  aria-pressed={type === t}
+                  className={cn(
+                    'rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors',
+                    type === t
+                      ? 'border-ink bg-ink text-paper'
+                      : 'border-ink/25 text-ink/70 hover:border-ink/60 hover:text-ink',
+                  )}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <label className="block">
+            <span className="label ">Conte um pouco sobre o projeto</span>
+            <textarea
+              name="message"
+              rows={3}
+              placeholder="Ex.: Preciso de um sistema para controlar pedidos e estoque, com app para os vendedores..."
+              className={cn(field, 'resize-none')}
+            />
+          </label>
+
+          <div>
+            <button type="submit" className="btn w-full sm:w-auto">
+              Enviar pelo WhatsApp <ArrowUpRight size={16} />
+            </button>
+            <p className="mt-3 text-xs text-muted">
+              Abre uma conversa no WhatsApp com a mensagem pronta. Nenhum dado é armazenado aqui.
+            </p>
+          </div>
+        </form>
       </div>
     </section>
-  );
-}
-
-function Field({
-  label,
-  name,
-  placeholder,
-  required,
-}: {
-  label: string;
-  name: string;
-  placeholder?: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <input
-        name={name}
-        required={required}
-        placeholder={placeholder}
-        className="rounded-xl border border-line bg-bg/50 px-4 py-3 text-sm text-text placeholder:text-muted/60 focus:border-violet-soft/60 focus:outline-none focus:ring-2 focus:ring-violet/30"
-      />
-    </label>
   );
 }

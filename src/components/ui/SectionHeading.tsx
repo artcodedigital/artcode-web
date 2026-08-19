@@ -1,45 +1,48 @@
 import { cn } from '@/lib/utils';
-import { Reveal } from './Reveal';
 
 type Props = {
-  eyebrow: string;
+  index: string;
+  label: string;
   title: React.ReactNode;
   description?: string;
-  align?: 'left' | 'center';
   className?: string;
+  dark?: boolean;
 };
 
-export function SectionHeading({
-  eyebrow,
-  title,
-  description,
-  align = 'left',
-  className,
-}: Props) {
+/**
+ * Editorial section opener: mono index + label on a hairline, then a big
+ * headline. Children get `data-reveal` so SmoothScroll animates them in.
+ */
+export function SectionHeading({ index, label, title, description, className, dark }: Props) {
   return (
-    <div
-      className={cn(
-        'mb-12 flex flex-col gap-4 md:mb-16',
-        align === 'center' && 'items-center text-center',
-        className,
-      )}>
-      <Reveal>
-        <span className="eyebrow inline-flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-glow-mint" />
-          {eyebrow}
-        </span>
-      </Reveal>
-      <Reveal delay={0.05}>
-        <h2 className="display max-w-[20ch] text-balance text-3xl leading-[1.05] sm:text-4xl md:text-5xl">
-          {title}
-        </h2>
-      </Reveal>
+    <div className={cn('mb-14 md:mb-20', className)}>
+      <div
+        data-reveal
+        className={cn(
+          'label flex items-center gap-4 border-t pt-4',
+          dark ? 'border-paper/15 text-paper/60' : 'border-ink/15',
+        )}>
+        <span className="tabular-nums">{index}</span>
+        <span className={cn('h-px w-8', dark ? 'bg-paper/25' : 'bg-ink/25')} />
+        <span>{label}</span>
+      </div>
+      <h2
+        data-reveal
+        className={cn(
+          'display mt-8 max-w-[18ch] text-balance text-[2.5rem] leading-[0.98] sm:text-5xl md:text-6xl',
+          dark ? 'text-paper' : 'text-ink',
+        )}>
+        {title}
+      </h2>
       {description && (
-        <Reveal delay={0.1}>
-          <p className="max-w-[56ch] text-pretty text-base leading-relaxed text-muted md:text-lg">
-            {description}
-          </p>
-        </Reveal>
+        <p
+          data-reveal
+          className={cn(
+            'mt-6 max-w-[54ch] text-pretty text-base leading-relaxed md:text-lg',
+            dark ? 'text-paper/65' : 'text-muted',
+          )}>
+          {description}
+        </p>
       )}
     </div>
   );

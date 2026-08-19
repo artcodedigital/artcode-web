@@ -1,5 +1,6 @@
 import { Hero } from '@/components/sections/Hero';
-import { TechMarquee } from '@/components/sections/TechMarquee';
+import { Marquee } from '@/components/sections/Marquee';
+import { Manifesto } from '@/components/sections/Manifesto';
 import { Services } from '@/components/sections/Services';
 import { Process } from '@/components/sections/Process';
 import { Portfolio } from '@/components/sections/Portfolio';
@@ -12,7 +13,10 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <TechMarquee />
+      <div className="border-y border-ink/10">
+        <Marquee />
+      </div>
+      <Manifesto />
       <Services />
       <Process />
       <Portfolio />

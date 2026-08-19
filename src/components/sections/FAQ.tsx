@@ -1,68 +1,59 @@
 'use client';
 
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { FAQ as ITEMS } from '@/data/content';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { Reveal } from '@/components/ui/Reveal';
 import { cn } from '@/lib/utils';
 
 export function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative scroll-mt-24 py-24 md:py-32">
-      <div className="container-x grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+    <section id="faq" className="relative scroll-mt-20 py-24 md:py-32">
+      <div className="container-x grid gap-12 lg:grid-cols-12 lg:gap-16">
         <SectionHeading
-          eyebrow="Perguntas frequentes"
+          index="06"
+          label="Perguntas frequentes"
           title={
             <>
-              Dúvidas comuns,{' '}
-              <span className="text-muted">respostas diretas.</span>
+              Dúvidas comuns, <span className="accent text-violet">respostas diretas.</span>
             </>
           }
           description="Não achou o que procurava? Manda uma mensagem — respondemos rápido."
-          className="mb-0 lg:sticky lg:top-32 lg:self-start"
+          className="mb-0 lg:col-span-5 lg:sticky lg:top-28 lg:self-start"
         />
 
-        <div className="divide-y divide-line border-y border-line">
+        <div className="lg:col-span-7">
           {ITEMS.map((item, i) => {
             const isOpen = open === i;
             return (
-              <Reveal key={item.q} delay={i * 0.03}>
-                <div>
-                  <button
-                    onClick={() => setOpen(isOpen ? null : i)}
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-${i}`}
-                    className="flex w-full items-center justify-between gap-6 py-5 text-left transition-colors hover:text-violet-soft md:py-6">
-                    <span className="display text-base font-semibold md:text-lg">{item.q}</span>
-                    <span
-                      className={cn(
-                        'grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line transition-all duration-300',
-                        isOpen && 'rotate-45 border-violet-soft/60 bg-violet/20 text-violet-soft',
-                      )}>
-                      <Plus size={16} />
-                    </span>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        id={`faq-${i}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden">
-                        <p className="max-w-[62ch] pb-6 text-sm leading-relaxed text-muted md:text-[0.95rem]">
-                          {item.a}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+              <div key={item.q} data-reveal className="border-t border-ink/10 last:border-b">
+                <button
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-${i}`}
+                  className="flex w-full items-center justify-between gap-6 py-6 text-left">
+                  <span className="display text-lg text-ink md:text-xl">{item.q}</span>
+                  <span
+                    className={cn(
+                      'grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 transition-all duration-300',
+                      isOpen && 'rotate-45 bg-ink text-paper',
+                    )}>
+                    <Plus size={16} />
+                  </span>
+                </button>
+                <div
+                  id={`faq-${i}`}
+                  className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
+                  style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}>
+                  <div className="overflow-hidden">
+                    <p className="max-w-[62ch] pb-7 text-[0.95rem] leading-relaxed text-muted md:text-base">
+                      {item.a}
+                    </p>
+                  </div>
                 </div>
-              </Reveal>
+              </div>
             );
           })}
         </div>

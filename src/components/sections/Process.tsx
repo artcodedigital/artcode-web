@@ -1,80 +1,93 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useSpring } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import { PROCESS } from '@/data/content';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { Reveal } from '@/components/ui/Reveal';
+import { gsap } from '@/lib/gsap';
+import { cn } from '@/lib/utils';
 
+/**
+ * Cards are `position: sticky` and stack under each other. GSAP shrinks and
+ * dims each card as the next one slides over it, so the pile reads as depth.
+ */
 export function Process() {
-  const ref = useRef<HTMLOListElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start 70%', 'end 60%'],
-  });
-  const line = useSpring(scrollYProgress, { stiffness: 90, damping: 24 });
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const cards = gsap.utils.toArray<HTMLElement>('[data-card]');
+      cards.forEach((card, i) => {
+        const next = cards[i + 1];
+        if (!next) return;
+        const st = { trigger: next, start: 'top bottom', end: 'top top+=96', scrub: true };
+        gsap.to(card, { scale: 0.94, ease: 'none', scrollTrigger: st });
+        // A paper-coloured veil instead of opacity: the card stays opaque, so
+        // the one underneath can't ghost through it.
+        gsap.to(card.querySelector('[data-veil]'), { opacity: 0.55, ease: 'none', scrollTrigger: st });
+      });
+    });
+    return () => mm.revert();
+  }, []);
 
   return (
-    <section id="processo" className="relative scroll-mt-24 overflow-hidden py-24 md:py-32">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-violet/10 blur-[160px]"
-      />
-      <div className="container-x grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-        <div className="lg:sticky lg:top-32 lg:self-start">
-          <SectionHeading
-            eyebrow="Como trabalhamos"
-            title={
-              <>
-                Um processo claro,{' '}
-                <span className="gradient-text">sem caixa-preta.</span>
-              </>
-            }
-            description="Você sabe o que está sendo feito, por quem e quando fica pronto. Entregas semanais, ambiente de testes desde o início e comunicação direta."
-            className="mb-0"
-          />
-          <Reveal delay={0.15} className="mt-8 hidden lg:block">
-            <div className="glass inline-flex items-center gap-4 rounded-2xl p-4">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-violet/20 font-display text-xl font-bold text-violet-soft">
-                6–12
-              </div>
-              <div className="text-sm">
-                <div className="font-semibold">semanas em média</div>
-                <div className="text-muted">do kick-off ao lançamento</div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+    <section id="processo" ref={root} className="relative scroll-mt-20 py-24 md:py-32">
+      <div className="container-x">
+        <SectionHeading
+          index="03"
+          label="Como trabalhamos"
+          title={
+            <>
+              Um processo claro, <span className="accent text-violet">sem caixa-preta.</span>
+            </>
+          }
+          description="Você sabe o que está sendo feito, por quem e quando fica pronto. Entregas semanais, ambiente de testes desde o início e comunicação direta."
+        />
 
-        <ol ref={ref} className="relative">
-          {/* Track */}
-          <div className="absolute bottom-6 left-[19px] top-6 w-px bg-line md:left-[23px]" aria-hidden />
-          <motion.div
-            style={{ scaleY: line }}
-            className="absolute bottom-6 left-[19px] top-6 w-px origin-top bg-gradient-to-b from-violet via-violet-soft to-mint md:left-[23px]"
-            aria-hidden
-          />
-
-          {PROCESS.map((p, i) => (
-            <Reveal as="li" key={p.step} delay={i * 0.05} className="relative pl-16 pb-12 last:pb-0 md:pl-20">
-              <span className="absolute left-0 top-0 grid h-10 w-10 place-items-center rounded-full border border-line bg-bg font-mono text-xs text-violet-soft md:h-12 md:w-12 md:text-sm">
-                {p.step}
-                <span className="absolute inset-0 -z-10 rounded-full bg-violet/30 blur-md" />
-              </span>
-              <div className="card p-6 transition-colors duration-500 hover:border-violet-soft/40">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="display text-xl md:text-2xl">{p.title}</h3>
-                  <span className="rounded-full border border-line px-2.5 py-0.5 font-mono text-[0.68rem] text-muted">
+        <div className="relative">
+          {PROCESS.map((p, i) => {
+            const last = i === PROCESS.length - 1;
+            return (
+              <article
+                key={p.step}
+                data-card
+                style={{ top: `calc(88px + ${i * 14}px)` }}
+                className={cn(
+                  'sticky mb-6 origin-top overflow-hidden rounded-2xl border p-7 will-change-transform md:p-10',
+                  last ? 'border-violet/60 bg-paper-2' : 'border-ink/12 bg-paper-2',
+                )}>
+                <div className="grid gap-6 md:grid-cols-[120px_1fr_auto] md:items-start">
+                  <span
+                    className={cn(
+                      'display text-[3.5rem] leading-none tracking-[-0.05em] md:text-[4.5rem]',
+                      last ? 'text-violet' : 'text-ink/15',
+                    )}>
+                    {p.step}
+                  </span>
+                  <div>
+                    <h3 className="display text-2xl md:text-4xl">{p.title}</h3>
+                    <p
+                      className={cn(
+                        'mt-3 max-w-[56ch] text-pretty text-[0.95rem] leading-relaxed md:text-lg',
+                        'text-muted',
+                      )}>
+                      {p.description}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      'label rounded-full border px-3 py-1.5',
+                      last ? 'border-violet/50 text-violet' : 'border-ink/15',
+                    )}>
                     {p.duration}
                   </span>
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-muted md:text-[0.95rem]">
-                  {p.description}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </ol>
+                <div className={cn('mt-8 h-24 md:h-32', last && 'md:h-40')} aria-hidden />
+                {!last && <span data-veil className="pointer-events-none absolute inset-0 rounded-2xl bg-paper opacity-0" aria-hidden />}
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
